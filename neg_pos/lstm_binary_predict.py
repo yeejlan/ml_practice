@@ -34,6 +34,7 @@ MAX_SEQUENCE_LENGTH = 100
 WORD_COUNT_VALVE = 5 
 WORD_COUNT_LIST_DUMP_FILE = 'word_count_list.dump'
 MODEL_WEIGHT_SAVED_FILE = 'lstm_binary.h5'
+#MODEL_WEIGHT_SAVED_FILE = 'lstm_pre_trained_emb.h5'
 TRAINING_COUNT = 15000
 
 word_count_list = []
@@ -55,6 +56,7 @@ def doc2num(s, MAX_SEQUENCE_LENGTH):
 
 #load model
 model = load_model(MODEL_WEIGHT_SAVED_FILE)
+print('Model loaded from', MODEL_WEIGHT_SAVED_FILE)
 model.summary()
 
 
