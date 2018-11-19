@@ -11,17 +11,14 @@ import matplotlib.pyplot as plt
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout, Embedding
-from keras.layers import LSTM
+from keras.layers import Conv1D, GlobalMaxPooling1D, LSTM, MaxPooling1D
 from keras.callbacks import EarlyStopping
-from keras.initializers import Constant
-
-import gensim
 
 import os
 import tensorflow as tf
 import random
 
-# Epoch 15/30 loss: 0.1170 - acc: 0.9693 - val_loss: 0.2648 - val_acc: 0.9133
+# Epoch 6/30 loss: 0.0791 - acc: 0.9783 - val_loss: 0.2751 - val_acc: 0.9153
 
 os.environ['PYTHONHASHSEED'] = '0'
 np.random.seed(77)
@@ -42,19 +39,15 @@ def clean_text(text):
     return text.strip()
 
 all_[0] = all_[0].apply(lambda s: clean_text(s))
-all_['words'] = all_[0].apply(lambda s: jieba.lcut(s)) 
+all_['words'] = all_[0].apply(lambda s: list(jieba.cut(s))) #调用结巴分词
 
 
-WORD2VEC_PRE_TRAINED_FILE = 'D:/work/test/ml/word2vec/news_12g_baidubaike_20g_novel_90g_embedding_64.bin';
+
 MAX_SEQUENCE_LENGTH = 100 
 WORD_COUNT_VALVE = 5 
 WORD_COUNT_LIST_DUMP_FILE = 'word_count_list.dump'
-MODEL_WEIGHT_SAVED_FILE = 'lstm_pre_trained_emb.h5'
+MODEL_WEIGHT_SAVED_FILE = 'cnn_lstm_binary.h5'
 TRAINING_COUNT = 15000
-
-EMBEDDING_DIM = 64
-MAX_NUM_WORDS = 20000
-
 
 all_words = []
 for i in all_['words']:
@@ -90,35 +83,15 @@ x = np.array(list(all_['doc2num']))
 y = np.array(list(all_['label']))
 y = y.reshape((-1,1))
 
-print('Load word2vec data ...')
-w2v = gensim.models.KeyedVectors.load_word2vec_format(WORD2VEC_PRE_TRAINED_FILE, binary=True)
-print('Load word2vec data DONE')
-
-#prepare embedding matrix
-num_words = min(MAX_NUM_WORDS, len(word_count_list)) + 1
-embedding_matrix = np.zeros((num_words, EMBEDDING_DIM))
-for word, i in word_count_list.items():
-
-	if i > MAX_NUM_WORDS:
-		continue
-
-	try:
-		embedding_vector = w2v.get_vector(word)
-		embedding_matrix[i] = embedding_vector
-	except KeyError:
-		#words not found in embedding index will be all-zeros.
-		pass	
-
-print('Embedding matrix created, shape = ', np.shape(embedding_matrix))
-
 def create_model():
 	model = Sequential()
-	model.add(Embedding(num_words, EMBEDDING_DIM, embeddings_initializer=Constant(embedding_matrix), 
-		input_length=MAX_SEQUENCE_LENGTH, name="embedding_1", trainable=False))
-	model.add(LSTM(128, name="lstm_1")) 
-	model.add(Dropout(0.3, name="dropout_1"))
-	model.add(Dense(1, name="dense_1"))
-	model.add(Activation('sigmoid', name="activation_1"))
+	model.add(Embedding(len(word_count_list), 16, input_length=MAX_SEQUENCE_LENGTH))
+	model.add(Dropout(0.2))
+	model.add(Conv1D(128, kernel_size = 3, padding='valid', activation='relu', strides=1))
+	model.add(MaxPooling1D(pool_size=2))
+	model.add(LSTM(64))
+	model.add(Dense(1))
+	model.add(Activation('sigmoid'))
 	model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 	model.summary()
 	return model
@@ -147,3 +120,8 @@ def plot_loss(history, key='binary_crossentropy'):
 
 plot_loss(history)
 
+def predict_one(s):
+	s = clean_text(s)
+	s = np.array(doc2num(jieba.lcut(s), MAX_SEQUENCE_LENGTH))
+	s = s.reshape((1, s.shape[0]))
+	return model.predict_classes(s, verbose=0)[0][0]

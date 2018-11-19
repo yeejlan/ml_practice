@@ -35,7 +35,8 @@ WORD_COUNT_VALVE = 5
 WORD_COUNT_LIST_DUMP_FILE = 'word_count_list.dump'
 #MODEL_WEIGHT_SAVED_FILE = 'lstm_binary.h5'
 #MODEL_WEIGHT_SAVED_FILE = 'lstm_pre_trained_emb.h5'
-MODEL_WEIGHT_SAVED_FILE = 'cnn_binary.h5'
+#MODEL_WEIGHT_SAVED_FILE = 'cnn_binary.h5'
+MODEL_WEIGHT_SAVED_FILE = 'cnn_lstm_binary.h5'
 TRAINING_COUNT = 15000
 
 word_count_list = []
