@@ -137,12 +137,12 @@ def create_model():
 	op = Dense(128, activation='relu')(base_model.output)
 	op = Dropout(.25)(op)
 
-    output_tensor = Dense(num_classes, activation='softmax')(op)
+	output_tensor = Dense(num_classes, activation='softmax')(op)
 
-    model = Model(inputs=input_tensor, outputs=output_tensor)
-    model.compile(loss=keras.losses.categorical_crossentropy, optimizer='adam', metrics=['categorical_accuracy'])
-    model.summary()
-    return model
+	model = Model(inputs=input_tensor, outputs=output_tensor)
+	model.compile(loss=keras.losses.categorical_crossentropy, optimizer='adam', metrics=['categorical_accuracy'])
+	model.summary()
+	return model
 
 model = create_model()
 
