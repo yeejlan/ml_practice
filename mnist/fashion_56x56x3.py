@@ -30,7 +30,7 @@ tf.set_random_seed(77)
 
 BASE_PATH = 'D:/work/source/fashion-mnist/data/fashion/'
 #BASE_PATH = '/export/work/fashion-mnist/data/fashion/'
-MODEL_WEIGHT_SAVED_FILE = 'fashion.h5'
+MODEL_WEIGHT_SAVED_FILE = 'fashion_56x65x3.h5'
 
 img_rows, img_cols = 28, 28
 
